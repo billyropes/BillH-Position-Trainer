@@ -1,0 +1,39 @@
+const positions = [
+  {
+    name: "Nadu",
+    audioFile: "audio/nadu.mp3
+    imageFile: "images/female-nadu.jpg",
+    difficulty: 1
+  },
+  {
+    name: "Collar",
+    audioFile: "audio/collar.mp3",
+    imageFile: "images/female-collar.jpg",
+    difficulty: 1
+  },
+  {
+    name: "Bara",
+    audioFile: "audio/bara.mp3",
+    imageFile: "images/female-bara.jpg",
+    difficulty: 2
+  },
+  {
+    name: "Expose",
+    audioFile: "audio/expose.mp3",
+    imageFile: "images/female-expose.jpg",
+    difficulty: 2
+  },
+  {
+    name: "Inspection",
+    audioFile: "audio/inspection.mp3",
+    imageFile: "images/female-inspect.jpg",
+    difficulty: 3
+  }
+  {
+    name: "Sula",
+    audioFile: "audio/sula.mp3",
+    imageFile: "images/female-sula.jpg",
+    difficulty: 3
+  }
+  // ... more positions
+];
