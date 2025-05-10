@@ -79,20 +79,20 @@
     // Initialize the AudioContext (do this once)
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
-    function startTraining() {
+function startTraining() {
       const difficulty = parseInt(document.getElementById("difficulty").value);
-      const duration = parseInt(document.getElementById("duration").value);
+      const duration = parseInt(document.getElementById("duration").value) * 1000; // Convert to milliseconds
       const currentPositionNameElement = document.getElementById("currentPositionName");
       const currentPositionImageElement = document.getElementById("currentPositionImage");
 
       const filteredPositions = positions.filter(pos => pos.difficulty <= difficulty);
       const startTime = Date.now();
-      let intervalId;
+      let timer; // To hold the timeout ID
 
-      intervalId = setInterval(() => {
+      function nextPosition() {
         const currentTime = Date.now();
-        if (currentTime - startTime >= duration * 1000) {
-          clearInterval(intervalId);
+        if (currentTime - startTime >= duration) {
+          clearTimeout(timer);
           alert("Training session complete!");
           currentPositionNameElement.textContent = "";
           currentPositionImageElement.src = "";
@@ -106,23 +106,22 @@
         currentPositionImageElement.src = currentPosition.imageFile;
         playAudio(currentPosition.audioFile);
 
-        // Generate random hold time (adjust ranges based on difficulty)
+        // Generate random hold time
         let minHold, maxHold;
         switch (difficulty) {
-          case 1: minHold = 3000; maxHold = 7000; break; // 3-7 seconds
-          case 2: minHold = 5000; maxHold = 10000; break; // 5-10 seconds
-          case 3: minHold = 8000; maxHold = 15000; break; // 8-15 seconds
-          default: minHold = 4000; maxHold = 8000;
+          case 1: minHold = 10000; maxHold = 15000; break; // At least 10 seconds
+          case 2: minHold = 12000; maxHold = 18000; break;
+          case 3: minHold = 15000; maxHold = 20000; break;
+          default: minHold = 10000; maxHold = 12000;
         }
         const holdTime = Math.random() * (maxHold - minHold) + minHold;
 
-        // Set a timeout for the next position change
-        setTimeout(() => {
-          // This will happen after the hold time. For now, the next interval will trigger it.
-          // You might want to adjust the interval of the main timer if needed for smoother transitions.
-        }, holdTime);
+        // Set a timeout to call the nextPosition function after the hold time
+        timer = setTimeout(nextPosition, holdTime);
+      }
 
-      }, 100); // Initial interval, the next position is triggered within this interval
+      // Start the training by calling the first nextPosition
+      nextPosition();
     }
   </script>
 
