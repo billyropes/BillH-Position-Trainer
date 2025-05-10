@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Position Training</title>
+</head>
+<body>
+  <div>
+    <label for="difficulty">Difficulty:</label>
+    <select id="difficulty">
+      <option value="1">Easy</option>
+      <option value="2">Medium</option>
+      <option value="3">Hard</option>
+    </select>
+  </div>
+  <div>
+    <label for="duration">Duration (seconds):</label>
+    <input type="number" id="duration" value="60">
+  </div>
+  <button onclick="startTraining()">Start</button>
+  <div id="currentPositionName"></div>
+  <img id="currentPositionImage" src="" alt="Current Position">
+  <script src="script.js"></script>
+</body>
+</html>
