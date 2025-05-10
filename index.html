@@ -62,7 +62,7 @@
     function playAudio(url) {
         // Inside this function, the 'url' parameter will hold the value
         // that was passed from the startTraining function (i.e., currentPosition.audioFile).
-     
+     console.log("Attempting to fetch audio from:", url); //
       fetch(url)
         .then(response => response.arrayBuffer())
         .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
