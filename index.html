@@ -53,6 +53,9 @@
   <div id="currentPositionName">Ready to Start</div>
   <img id="currentPositionImage" src="images/placeholder.png" alt="Current Position">
 
+  <div id="timer"></div>    \\Timer countdown
+  <button id="stopButton" onclick="stopTraining()">Stop</button>    \\Stop button
+  
   <script>
     const positions = [
        {
@@ -111,21 +114,62 @@
 
     // Initialize the AudioContext (do this once)
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    let trainingActive = false; // Flag to track if training is active
+    let timerInterval; // To hold the interval for the countdown
+    let endTime; // To store the end time of the training
+    let timer; // To hold the timeout ID for nextPosition
 
-function startTraining() {
+   function updateTimerDisplay() {
+      const now = Date.now();
+      const timeLeft = Math.max(0, endTime - now); // Ensure time left is not negative
+      const minutes = Math.floor((timeLeft / (1000 * 60)) % 60);
+      const seconds = Math.floor((timeLeft / 1000) % 60);
+      document.getElementById("timer").textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      if (timeLeft <= 0 && trainingActive) {
+        trainingActive = false;
+        clearTimeout(timer);
+        clearInterval(timerInterval);
+        alert("Training session complete!");
+        document.getElementById("currentPositionName").textContent = "";
+        document.getElementById("currentPositionImage").src = "";
+      }
+    }
+
+    function stopTraining() {
+      if (trainingActive) {
+        trainingActive = false;
+        clearTimeout(timer);
+        clearInterval(timerInterval);
+        alert("Training stopped!");
+        document.getElementById("currentPositionName").textContent = "";
+        document.getElementById("currentPositionImage").src = "";
+        document.getElementById("timer").textContent = ""; // Clear the timer display
+      }
+    }
+    
+    function startTraining() {
+      if (trainingActive) return; // Don't start if already active
+      trainingActive = true;
       const difficulty = parseInt(document.getElementById("difficulty").value);
-      const duration = parseInt(document.getElementById("duration").value) * 1000; // Convert to milliseconds
+      const duration = parseInt(document.getElementById("duration").value) * 1000;
       const currentPositionNameElement = document.getElementById("currentPositionName");
       const currentPositionImageElement = document.getElementById("currentPositionImage");
+      endTime = Date.now() + duration; // Calculate the end time
 
       const filteredPositions = positions.filter(pos => pos.difficulty <= difficulty);
       const startTime = Date.now();
-      let timer; // To hold the timeout ID
 
-      function nextPosition() {
+      updateTimerDisplay(); // Initial display
+      timerInterval = setInterval(updateTimerDisplay, 1000); // Update every second
+
+
+     function nextPosition() {
+        if (!trainingActive) return; // Stop if training is no longer active
         const currentTime = Date.now();
-        if (currentTime - startTime >= duration) {
+        if (currentTime - startTime >= duration && trainingActive) {
+          trainingActive = false;
           clearTimeout(timer);
+          clearInterval(timerInterval);
           alert("Training session complete!");
           currentPositionNameElement.textContent = "";
           currentPositionImageElement.src = "";
