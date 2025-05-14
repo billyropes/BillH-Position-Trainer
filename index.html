@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Position Training</title>
+  <style>
+    body {
+      font-size: 24px; /* Adjust the base font size for overall text */
+    }
+
+    label {
+      font-size: 1.2em; /* Slightly larger label text */
+    }
+
+    select {
+      font-size: 1.2em;
+    }
+
+    input[type="number"] {
+      font-size: 1.2em;
+    }
+
+    button {
+      font-size: 1.5em; /* Make the button text larger */
+      padding: 10px 20px; /* Add some padding around the text for a larger button appearance */
+    }
+
+    #currentPositionName {
+      font-size: 1.8em; /* Make the position name larger */
+      margin-top: 20px; /* Add some space above it */
+    }
+
+    #currentPositionImage {
+      max-width: 80%; /* Adjust as needed to control image size */
+      height: auto;
+      margin-top: 10px;
+    }
+
+    #modeSelect {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+    }
+    #audioSetSelect, #imageSetSelect {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+    }
+    #timer {
+      font-size: 2em;
+      margin-top: 20px;
+    }
+    #stopButton {
+      font-size: 1.2em;
+      padding: 8px 15px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <label for="modeSelect">Mode:</label>
+    <select id="modeSelect">
+      <option value="test">Test</option>
+      <option value="practice">Practice</option>
+    </select>
+  </div>
+  <div>
+    <label for="audioSetSelect">Audio Set:</label>
+    <select id="audioSetSelect">
+      <option value="female">Female Voice</option>
+      <option value="male">Male Voice</option>
+      <option value="mixed">Mixed Voices</option>
+    </select>
+  </div>
+  <div>
+    <label for="imageSetSelect">Image Set:</label>
+    <select id="imageSetSelect">
+      <option value="female">Female Poses</option>
+      <option value="male">Male Poses</option>
+      <option value="mixed">Mixed Poses</option>
+    </select>
+  </div>
+  <div>
+    <label for="difficulty">Difficulty:</label>
+    <select id="difficulty">
+      <option value="1">Easy</option>
+      <option value="2">Medium</option>
+      <option value="3">Hard</option>
+    </select>
+  </div>
+  <div>
+    <label for="duration">Duration (seconds):</label>
+    <input type="number" id="duration" value="25">
+  </div>
+  <button onclick="startTraining()">Start</button>
+  <div id="currentPositionName">Ready to Start</div>
+  <img id="currentPositionImage" src="images/placeholder.png" alt="Current Position">
+
+  <div id="timer"></div>
+  <button id="stopButton" onclick="stopTraining()">Stop</button>
+
+  <script>
+    const allPositions = {
+      female: [
+        {
+          name: "Nadu",
+          audioFile: "audio/female/Nadu.mp3",
+          imageFile: "images/female/female-nadu.jpg",
+          difficulty: 1
+        },
+        {
+          name: "Collar",
+          audioFile: "audio/female/Collar.mp3",
+          imageFile: "images/female/female-collar.png",
+          difficulty: 1
+        },
+        {
+          name: "Bara",
+          audioFile: "audio/female/Bara.mp3",
+          imageFile: "images/female/female-bara.jpg",
+          difficulty: 1
+        },
+        {
+          name: "Expose",
+          audioFile: "audio/female/Expose.mp3",
+          imageFile: "images/female/female-expose.jfif",
+          difficulty: 1
+        },
+        {
+          name: "Inspection",
+          audioFile: "audio/female/Inspection.mp3",
+          imageFile: "images/female/female-inspect.jpg",
+          difficulty: 1
+        },
+        {
+          name: "Sula",
+          audioFile: "audio/female/Sula.mp3",
+          imageFile: "images/female/female-sula.png",
+          difficulty: 1
+        },
+      ],
+      male: [
+        {
+          name: "Nadu",
+          audioFile: "audio/male/Nadu.mp3",
+          imageFile: "images/male/male-nadu.jpg",
+          difficulty: 1
+        },
+        {
+          name: "Collar",
+          audioFile: "audio/male/Collar.mp3",
+          imageFile: "images/male/male-collar.png",
+          difficulty: 1
+        },
+        {
+          name: "Bara",
+          audioFile: "audio/male/Bara.mp3",
+          imageFile: "images/male/male-bara.jpg",
+          difficulty: 1
+        },
+        {
+          name: "Expose",
+          audioFile: "audio/male/Expose.mp3",
+          imageFile: "images/male/male-expose.jfif",
+          difficulty: 1
+        },
+        {
+          name: "Inspection",
+          audioFile: "audio/male/Inspection.mp3",
+          imageFile: "images/male/male-inspect.jpg",
+          difficulty: 1
+        },
+        {
+          name: "Sula",
+          audioFile: "audio/male/Sula.mp3",
+          imageFile: "images/male/male-sula.png",
+          difficulty: 1
+        },
+      ],
+      mixed: [
+        {
+          name: "Nadu",
+          audioFile: "audio/female/Nadu.mp3",
+          imageFile: "images/female/female-nadu.jpg",
+          difficulty: 1
+        },
+        {
+          name: "Collar (Male)",
+          audioFile: "audio/male/Collar.mp3",
+          imageFile: "images/male/male-collar.png",
+          difficulty: 1
+        },
+        {
+          name: "Bara (Female)",
+          audioFile: "audio/female/Bara.mp3",
+          imageFile: "images/female/female-bara.jpg",
+          difficulty: 1
+        },
+        {
+          name: "Expose (Male)",
+          audioFile: "audio/male/Expose.mp3",
+          imageFile: "images/male/male-expose.jfif",
+          difficulty: 1
+        },
+        {
+          name: "Inspection (Female)",
+          audioFile: "audio/female/Inspection.mp3",
+          imageFile: "images/female/female-inspect.jpg",
+          difficulty: 1
+        },
+        {
+          name: "Sula (Male)",
+          audioFile: "audio/male/Sula.mp3",
+          imageFile: "images/male/male-sula.png",
+          difficulty: 1
+        },
+      ],
+    };
+
+    function playAudio(url) {
+      console.log("Attempting to fetch audio from:", url);
+      fetch(url)
+        .then(response => response.arrayBuffer())
+        .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
+        .then(audioBuffer => {
+          const source = audioContext.createBufferSource();
+          source.buffer = audioBuffer;
+          source.connect(audioContext.destination);
+          source.start();
+        })
+        .catch(error => console.error("Error playing audio:", error));
+    }
+
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    let trainingActive = false;
+    let timerInterval;
+    let endTime;
+    let timer;
+    let currentPositionIndex = 0;
+
+    function updateTimerDisplay() {
+      const now = Date.now();
+      const timeLeft = Math.max(0, endTime - now);
+      const minutes = Math.floor((timeLeft / (1000 * 60)) % 60);
+      const seconds = Math.floor((timeLeft / 1000) % 60);
+      document.getElementById("timer").textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      if (timeLeft <= 0 && trainingActive) {
+        stopTraining();
+        alert("Training session complete!");
+      }
+    }
+
+    function stopTraining() {
+      trainingActive = false;
+      clearTimeout(timer);
+      clearInterval(timerInterval);
+      document.getElementById("currentPositionName").textContent = "";
+      document.getElementById("currentPositionImage").src = "";
+      document.getElementById("timer").textContent = "";
+      currentPositionIndex = 0;
+    }
+
+    function startTraining() {
+      if (trainingActive) return;
+      trainingActive = true;
+      const mode = document.getElementById("modeSelect").value;
+      const difficulty = parseInt(document.getElementById("difficulty").value);
+      const audioSet = document.getElementById("audioSetSelect").value;
+      const imageSet = document.getElementById("imageSetSelect").value;
+      const duration = parseInt(document.getElementById("duration").value) * 1000;
+      const currentPositionNameElement = document.getElementById("currentPositionName");
+      const currentPositionImageElement = document.getElementById("currentPositionImage");
+      endTime = Date.now() + duration;
+      let currentPositions = allPositions[audioSet].filter(pos => pos.difficulty <= difficulty);
+      if (mode === 'practice') {
+        currentPositions.sort((a, b) => allPositions[audioSet].indexOf(a) - allPositions[audioSet].indexOf(b));
+        currentPositionIndex = 0;
+      }
+
+      updateTimerDisplay();
+      timerInterval = setInterval(updateTimerDisplay, 1000);
+
+      function nextPosition() {
+        if (!trainingActive) return;
+        const currentTime = Date.now();
+        if (currentTime - startTime >= duration && trainingActive) {
+          stopTraining();
+          alert("Training session complete!");
+          return;
+        }
+
+        let currentPosition;
+        if (mode === 'test') {
+          const randomIndex = Math.floor(Math.random() * currentPositions.length);
+          currentPosition = currentPositions[randomIndex];
+        } else if (mode === 'practice') {
+          if (currentPositionIndex < currentPositions.length) {
+            currentPosition = currentPositions[currentPositionIndex];
+            currentPositionIndex++;
+          } else {
+            stopTraining();
+            alert("Practice session complete!");
+            return;
+          }
+        }
+
+        if (currentPosition) {
+          const imageUrl = allPositions[imageSet].find(pos => pos.name === currentPosition.name)?.imageFile;
+          const audioUrl = currentPosition.audioFile;
+
+          if (imageUrl && audioUrl) {
+            document.getElementById("currentPositionName").textContent = currentPosition.name;
+            document.getElementById("currentPositionImage").src = imageUrl;
+            playAudio(audioUrl);
+
+            let minHold, maxHold;
+            switch (difficulty) {
+              case 1: minHold = 10000; maxHold = 15000; break;
+              case 2: minHold = 12000; maxHold = 18000; break;
+              case 3: minHold = 15000; maxHold = 20000; break;
+              default: minHold = 10000; maxHold = 12000;
+            }
+            const holdTime = Math.random() * (maxHold - minHold) + minHold;
+
+            console.log("Mode:", mode, "Audio Set:", audioSet, "Image Set:", imageSet, "Hold Time:", holdTime, "Position:", currentPosition.name);
+            timer = setTimeout(nextPosition, holdTime);
+          } else {
+            console.warn(`Skipping position "${currentPosition.name}" because audio or image is missing.`);
+            nextPosition();
+          }
+        }
+      }
+
+      const startTime = Date.now();
+      nextPosition();
+    }
+  </script>
+</body>
+</html>
