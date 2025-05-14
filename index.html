@@ -3,40 +3,34 @@
 <head>
   <title>Position Training</title>
   <style>
-    body {
-      font-size: 24px; /* Adjust the base font size for overall text */
-    }
+    /* ... your existing styles ... */
 
-    label {
-      font-size: 1.2em; /* Slightly larger label text */
-    }
-
-    select {
+    #modeSelect {
       font-size: 1.2em;
+      margin-bottom: 10px;
     }
 
-    input[type="number"] {
+    #timer {
+      font-size: 2em;
+      margin-top: 20px;
+    }
+
+    #stopButton {
       font-size: 1.2em;
-    }
-
-    button {
-      font-size: 1.5em; /* Make the button text larger */
-      padding: 10px 20px; /* Add some padding around the text for a larger button appearance */
-    }
-
-    #currentPositionName {
-      font-size: 1.8em; /* Make the position name larger */
-      margin-top: 20px; /* Add some space above it */
-    }
-
-    #currentPositionImage {
-      max-width: 80%; /* Adjust as needed to control image size */
-      height: auto;
+      padding: 8px 15px;
       margin-top: 10px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
+  <div>
+    <label for="modeSelect">Mode:</label>
+    <select id="modeSelect">
+      <option value="test">Test</option>
+      <option value="practice">Practice</option>
+    </select>
+  </div>
   <div>
     <label for="difficulty">Difficulty:</label>
     <select id="difficulty">
@@ -53,89 +47,52 @@
   <div id="currentPositionName">Ready to Start</div>
   <img id="currentPositionImage" src="images/placeholder.png" alt="Current Position">
 
-  <div id="timer"></div>    //Timer countdown
-  <button id="stopButton" onclick="stopTraining()">Stop</button>   //Stop button 
+  <div id="timer"></div>
+  <button id="stopButton" onclick="stopTraining()">Stop</button>
+
   
   <script>
     const positions = [
-       {
-    name: "Nadu",
-    audioFile: "audio/Nadu.mp3",
-    imageFile: "images/female-nadu.jpg",
-    difficulty: 1
-  },
-  {
-    name: "Collar",
-    audioFile: "audio/Collar.mp3",
-    imageFile: "images/female-collar.png",
-    difficulty: 1
-  },
-  {
-    name: "Bara",
-    audioFile: "audio/Bara.mp3",
-    imageFile: "images/female-bara.jpg",
-    difficulty: 1
-  },
-  {
-    name: "Expose",
-    audioFile: "audio/Expose.mp3",
-    imageFile: "images/female-expose.jfif",
-    difficulty: 1
-  },
-  {
-    name: "Inspection",
-    audioFile: "audio/Inspection.mp3",
-    imageFile: "images/female-inspect.jpg",
-    difficulty: 1
-  },
-  {
-    name: "Sula",
-    audioFile: "audio/female-sula.mp3",
-    imageFile: "images/female-sula.png",
-    difficulty: 1
-  },
-     {
-    name: "Wait",
-    audioFile: "audio/Waiting.mp3",
-    imageFile: "images/female-wait.png",
-    difficulty: 1
-  }, 
-          {
-    name: "Humble",
-    audioFile: "audio/Humble.mp3",
-    imageFile: "images/female-humble.jpg",
-    difficulty: 1
-  }, 
-                {
-    name: "Floor",
-    audioFile: "audio/Floor.mp3",
-    imageFile: "images/female-floor.jpg",
-    difficulty: 1
-  }, 
-                {
-    name: "Table",
-    audioFile: "audio/Table.mp3",
-    imageFile: "images/female-table.jpg",
-    difficulty: 1
-  }, 
-                {
-    name: "Footstool",
-    audioFile: "audio/Stool.mp3",
-    imageFile: "images/female-footstool.jpg",
-    difficulty: 1
-  }, 
-                {
-    name: "Wall",
-    audioFile: "audio/Wall.mp3",
-    imageFile: "images/female-wall.jpg",
-    difficulty: 1
-  }, 
-  ];
+      {
+        name: "Nadu",
+        audioFile: "audio/Nadu.mp3",
+        imageFile: "images/female-nadu.jpg",
+        difficulty: 1
+      },
+      {
+        name: "Collar",
+        audioFile: "audio/Collar.mp3",
+        imageFile: "images/female-collar.png",
+        difficulty: 1
+      },
+      {
+        name: "Bara",
+        audioFile: "audio/Bara.mp3",
+        imageFile: "images/female-bara.jpg",
+        difficulty: 1
+      },
+      {
+        name: "Expose",
+        audioFile: "audio/Expose.mp3",
+        imageFile: "images/female-expose.jfif",
+        difficulty: 1
+      },
+      {
+        name: "Inspection",
+        audioFile: "audio/Inspection.mp3",
+        imageFile: "images/female-inspect.jpg",
+        difficulty: 1
+      },
+      {
+        name: "Sula",
+        audioFile: "audio/Sula.mp3",
+        imageFile: "images/female-sula.png",
+        difficulty: 1
+      },
+    ];
 
     function playAudio(url) {
-        // Inside this function, the 'url' parameter will hold the value
-        // that was passed from the startTraining function (i.e., currentPosition.audioFile).
-     console.log("Attempting to fetch audio from:", url); //
+      console.log("Attempting to fetch audio from:", url);
       fetch(url)
         .then(response => response.arrayBuffer())
         .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
@@ -148,93 +105,99 @@
         .catch(error => console.error("Error playing audio:", error));
     }
 
-    // Initialize the AudioContext (do this once)
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    let trainingActive = false; // Flag to track if training is active
-    let timerInterval; // To hold the interval for the countdown
-    let endTime; // To store the end time of the training
-    let timer; // To hold the timeout ID for nextPosition
+    let trainingActive = false;
+    let timerInterval;
+    let endTime;
+    let timer;
+    let currentPositionIndex = 0; // For practice mode
 
-   function updateTimerDisplay() {
+    function updateTimerDisplay() {
       const now = Date.now();
-      const timeLeft = Math.max(0, endTime - now); // Ensure time left is not negative
+      const timeLeft = Math.max(0, endTime - now);
       const minutes = Math.floor((timeLeft / (1000 * 60)) % 60);
       const seconds = Math.floor((timeLeft / 1000) % 60);
       document.getElementById("timer").textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
       if (timeLeft <= 0 && trainingActive) {
-        trainingActive = false;
-        clearTimeout(timer);
-        clearInterval(timerInterval);
+        stopTraining(); // Use stopTraining to handle cleanup
         alert("Training session complete!");
-        document.getElementById("currentPositionName").textContent = "";
-        document.getElementById("currentPositionImage").src = "";
       }
     }
 
     function stopTraining() {
-      if (trainingActive) {
-        trainingActive = false;
-        clearTimeout(timer);
-        clearInterval(timerInterval);
-        alert("Training stopped!");
-        document.getElementById("currentPositionName").textContent = "";
-        document.getElementById("currentPositionImage").src = "";
-        document.getElementById("timer").textContent = ""; // Clear the timer display
-      }
+      trainingActive = false;
+      clearTimeout(timer);
+      clearInterval(timerInterval);
+      document.getElementById("currentPositionName").textContent = "";
+      document.getElementById("currentPositionImage").src = "";
+      document.getElementById("timer").textContent = "";
+      currentPositionIndex = 0; // Reset index for practice mode
     }
-    
+
     function startTraining() {
-      if (trainingActive) return; // Don't start if already active
+      if (trainingActive) return;
       trainingActive = true;
+      const mode = document.getElementById("modeSelect").value;
       const difficulty = parseInt(document.getElementById("difficulty").value);
       const duration = parseInt(document.getElementById("duration").value) * 1000;
       const currentPositionNameElement = document.getElementById("currentPositionName");
       const currentPositionImageElement = document.getElementById("currentPositionImage");
-      endTime = Date.now() + duration; // Calculate the end time
-
+      endTime = Date.now() + duration;
       const filteredPositions = positions.filter(pos => pos.difficulty <= difficulty);
-      const startTime = Date.now();
+      let currentPositions = filteredPositions; // Use this array for both modes
+      if (mode === 'practice') {
+        currentPositions = positions.filter(pos => pos.difficulty <= difficulty).sort((a, b) => positions.indexOf(a) - positions.indexOf(b)); // Maintain original order
+        currentPositionIndex = 0; // Start from the beginning
+      }
 
-      updateTimerDisplay(); // Initial display
-      timerInterval = setInterval(updateTimerDisplay, 1000); // Update every second
+      updateTimerDisplay();
+      timerInterval = setInterval(updateTimerDisplay, 1000);
 
-
-     function nextPosition() {
-        if (!trainingActive) return; // Stop if training is no longer active
+      function nextPosition() {
+        if (!trainingActive) return;
         const currentTime = Date.now();
         if (currentTime - startTime >= duration && trainingActive) {
-          trainingActive = false;
-          clearTimeout(timer);
-          clearInterval(timerInterval);
+          stopTraining();
           alert("Training session complete!");
-          currentPositionNameElement.textContent = "";
-          currentPositionImageElement.src = "";
           return;
         }
 
-        const randomIndex = Math.floor(Math.random() * filteredPositions.length);
-        const currentPosition = filteredPositions [randomIndex];
-
-        currentPositionNameElement.textContent = currentPosition.name;
-        currentPositionImageElement.src = currentPosition.imageFile;
-        playAudio(currentPosition.audioFile);
-
-        // Generate random hold time
-        let minHold, maxHold;
-        switch (difficulty) {
-          case 1: minHold = 10000; maxHold = 15000; break; // At least 10 seconds
-          case 2: minHold = 12000; maxHold = 18000; break;
-          case 3: minHold = 15000; maxHold = 20000; break;
-          default: minHold = 10000; maxHold = 12000;
+        let currentPosition;
+        if (mode === 'test') {
+          const randomIndex = Math.floor(Math.random() * currentPositions.length);
+          currentPosition = currentPositions[randomIndex];
+        } else if (mode === 'practice') {
+          if (currentPositionIndex < currentPositions.length) {
+            currentPosition = currentPositions[currentPositionIndex];
+            currentPositionIndex++;
+          } else {
+            // Practice mode finished cycling
+            stopTraining();
+            alert("Practice session complete!");
+            return;
+          }
         }
-        const holdTime = Math.random() * (maxHold - minHold) + minHold;
 
-        // Set a timeout to call the nextPosition function after the hold time
-        console.log("Hold Time:", holdTime);
-        timer = setTimeout(nextPosition, holdTime);
+        if (currentPosition) {
+          currentPositionNameElement.textContent = currentPosition.name;
+          currentPositionImageElement.src = currentPosition.imageFile;
+          playAudio(currentPosition.audioFile);
+
+          let minHold, maxHold;
+          switch (difficulty) {
+            case 1: minHold = 10000; maxHold = 15000; break;
+            case 2: minHold = 12000; maxHold = 18000; break;
+            case 3: minHold = 15000; maxHold = 20000; break;
+            default: minHold = 10000; maxHold = 12000;
+          }
+          const holdTime = Math.random() * (maxHold - minHold) + minHold;
+
+          console.log("Mode:", mode, "Hold Time:", holdTime, "Position:", currentPosition.name);
+          timer = setTimeout(nextPosition, holdTime);
+        }
       }
 
-      // Start the training by calling the first nextPosition
+      const startTime = Date.now(); // Initialize startTime here, after mode is determined
       nextPosition();
     }
   </script>
